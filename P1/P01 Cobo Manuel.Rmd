@@ -1,0 +1,391 @@
+---
+title: "Práctica 1. FMAD 2021-2022"
+author: "Manuel Alejandro Cobo Cervantes"
+date: 'Curso 2021-22. Última actualización: `r format(Sys.time(), "%Y-%m-%d")`'
+output:
+  html_document: default
+  word_document: default
+subtitle: ICAI. Master en Big Data. Fundamentos Matemáticos del Análisis de Datos
+  (FMAD).
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+```{r}
+library(tidyverse)
+```
+
+
+
+### Ejercicio 1
+
+##### leemos el fichero
+
+
+```{r}
+chlstrl = read_csv('cholesterol.csv')
+
+```
+##### vemos el contenido
+```{r}
+View(chlstrl)
+```
+
+##### vemos caracteristicas
+```{r}
+str(chlstrl)
+```
+
+##### miramos si hay datos ausentes
+
+```{r}
+
+sum(is.na(chlstrl))
+```
+##### buscamos su posicion
+
+```{r}
+which(is.na(chlstrl))
+```
+
+
+
+
+
+
+##### Estudiamos la variable continua colesterol 'chol'
+
+
+
+
+```{r}
+mean(chlstrl$chol, na.rm= TRUE)
+```
+
+```{r}
+median(chlstrl$chol, na.rm= TRUE)
+```
+
+##### La desviación típica
+
+```{r}
+sd(chlstrl$chol, na.rm= TRUE)
+```
+
+
+
+##### valores Max y min.
+
+```{r}
+max(chlstrl$chol, na.rm= TRUE)
+min(chlstrl$chol, na.rm= TRUE)
+```
+
+ 
+
+
+##### analisis con grafico de cortes
+```{r}
+cortes = seq(min(chlstrl$chol,na.rm=TRUE), max(chlstrl$chol,na.rm=TRUE), length.out =20)
+ggplot(data = chlstrl, mapping = aes(x=chol)) + 
+  geom_histogram(breaks = cortes,aes(y=stat(density)), 
+                 fill = "RED", color="black") + geom_density(col='BLUE')
+```
+
+##### usando Boxplot
+
+```{r}
+bxp_chol = boxplot(chlstrl$chol, col="blue")
+```
+##### tidyverse 
+
+```{r}
+ggplot(chlstrl) + 
+  geom_boxplot(mapping = aes(y = chol), fill="Red")
+```
+
+
+##### Estudiamos el factor genero
+
+```{r}
+table(chlstrl$gender)
+```
+
+##### para analizar la proporcion de genero
+
+```{r}
+prop.table(table(chlstrl$gender))
+```
+
+
+##### en representación grafica
+
+
+```{r}
+ggplot(chlstrl) + 
+  geom_bar(mapping = aes(x = gender), fill= c('blue','red'))
+
+```
+
+
+##### en vez de sobreescribir la tabla, creamos una variante con la conversion de unidades hecha unsando un mutate, la nueva tabla se denomina a chlstrl_si. 
+
+```{r}
+
+chlstrl_si <- chlstrl %>% 
+  mutate("height" = height*0.0254, "weight" = weight*0.454 )
+
+chlstrl_si %>% 
+  mutate("BMI" = weight/(height)^2) -> chlstrl_si
+
+
+```
+
+```{r}
+View(chlstrl_si)
+```
+
+
+
+##### creamos los intervalos de años y los agrupamos en una nueva tabla
+
+```{r}
+vector_edades = seq(10,100,30)
+vector_edades
+
+chlstrl_sii <- chlstrl_si %>% 
+  mutate('ageGroup'=cut(chlstrl_si$age, breaks = seq(10,100,30)))
+```
+
+```{r}
+View(chlstrl_sii)
+```
+
+```{r}
+chlstrl_sii %>% 
+  group_by(ageGroup) %>% 
+    count()
+```
+
+
+
+#### Seleccionamos a las mujeres con dplyr:
+
+```{r}
+chlstrl_sii %>% 
+  group_by(ageGroup) %>% 
+    filter(gender=="female")  %>% 
+      summarise(media_col = mean(chol,na.rm=TRUE),media_bmi = mean(BMI,na.rm=TRUE))
+```
+
+
+
+
+
+# EJERCICIO 2 
+
+##### Creamos el vectorde de -100 a 100 evitando el cero y desarollamos una funcion para contar los cambios de signo en base al signo de la multiplicacion de un numero por el siguiente en el vector
+
+```{r}
+vdatos=sample(c(-100:-1,1:100),9,replace = TRUE)
+numero_de_cambios =function(vect){
+i=0
+  for(pos in seq(length(vect)-1)){
+    if( vect[pos]*vect[pos+1]<0 ){
+      i=i+1
+    }
+  }
+return(i)
+}
+numero_de_cambios(vdatos)
+```
+##### Desarollamos una funcion para mostrar las posiciones del vector donde suceden los cambios de signo 
+```{r}
+vdatos=sample(c(-100:-1,1:100),9,replace = TRUE)
+posicion_de_cambios = function(vect){
+  place=c()
+  for(pos in seq(length(vect)-1)){
+    if( vect[pos]*vect[pos+1]<0 ){
+      place=append(place,pos+1)
+    }
+  }
+  if(is.null(place) == TRUE){
+    print("Signos iguales en el vector")
+    }
+	else{
+      return(place)
+    }
+}
+posicion_de_cambios(vdatos)
+```
+
+
+
+
+
+
+
+### seccion 3.6.1
+
+
+#### EJERCICIO 6
+
+Realizamos los gráficos. 
+
+Es importante señalar que se van a guardar en 6 variables ya que luego se visualizarán de manera conjunto, como se muestra en el enunciado. 
+
+
+##### Gráfico 1
+
+```{r}
+g1 = ggplot(data = mpg, mapping = aes(x = displ, y = hwy)) + 
+  geom_point() + 
+  geom_smooth(se = FALSE)
+```
+
+
+##### Gráfico 2
+
+```{r}
+g2 = ggplot(data = mpg, mapping = aes(x = displ, y = hwy, group = drv)) + 
+  geom_point() + 
+  geom_smooth(se = FALSE)
+```
+
+
+##### Gráfico 3
+
+```{r}
+g3 = ggplot(data = mpg, mapping = aes(x = displ, y = hwy, colour = drv)) + 
+  geom_point() + 
+  geom_smooth(se = FALSE)
+```
+
+
+##### Gráfico 4
+
+```{r}
+g4 = ggplot() + 
+  geom_point(data = mpg, mapping = aes(x = displ, y = hwy, colour = drv)) + 
+  geom_smooth(data = mpg, mapping = aes(x = displ, y = hwy),se = FALSE)
+```
+
+
+##### Gráfico 5
+
+```{r}
+g5 = ggplot() + 
+  geom_point(data = mpg, mapping = aes(x = displ, y = hwy, colour = drv)) + 
+  geom_smooth(data = mpg, mapping = aes(x = displ, y = hwy, linetype = drv),se = FALSE)
+```
+
+
+##### Gráfico 6
+
+
+```{r}
+g6 = ggplot(mpg, aes(x = displ, y = hwy)) +
+  geom_point(size = 4, color = "BLUE") +
+  geom_point(aes(colour = drv))
+  
+```
+
+
+```{r}
+library(gridExtra)
+```
+
+```{r}
+grid.arrange(g1, g2, g3, g4, g5, g6, nrow = 3)
+```
+
+
+
+
+
+### seccion 5.2.4
+
+
+#### EJERCICIO 1
+ 
+```{r}
+library(nycflights13)
+```
+ 
+
+
+```{r}
+View(flights)
+```
+
+
+
+En este ejercicio se pide encontrar vuelos que cumplan ciertas condiciones. 
+
+
+####  1 Un retraso de dos o más horas (120 minutos)
+
+'
+
+```{r}
+filter(flights, arr_delay >= 120)
+```
+
+
+
+#### 2 Vuelos a Houston (IAH / HOU)
+
+
+
+```{r}
+
+filter(flights, dest == "IAH" | dest == "HOU")
+```
+
+
+#### 3 Fueron manejados por United / America / Delta
+
+```{r}
+filter(flights, carrier %in% c("AA", "DL", "UA"))
+```
+
+
+
+#### 4 Salieron en verano (meses de Julio, Agosto o Septiembre)
+
+
+```{r}
+filter(flights, month >= 7, month <= 9)
+```
+
+
+#### 5 LLegaron tarde pero no salieron tarde (más de dos horas)
+
+```{r}
+filter(flights, arr_delay > 120, dep_delay <= 0)
+```
+
+
+#### 6 Se retrasaron como mínimo una hora, pero durante el vuelo recuperaron 30' 
+
+
+```{r}
+filter(flights, dep_delay >= 60, dep_delay - arr_delay > 30)
+```
+
+
+
+#### 7 Salieron entre media noche y las 6am 
+
+
+```{r}
+filter(flights, dep_time <= 600 | dep_time == 2400)
+```
+
+
+
+
+
+
