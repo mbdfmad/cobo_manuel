@@ -1,0 +1,196 @@
+---
+title: "Práctica 0. FMAD 2021-2022"
+author: "Manuel Cobo"
+date: "9/16/2021"
+output:
+  html_document: default
+  pdf_document: default
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+## ICAI. Master en Big Data. Fundamentos Matemáticos del Análisis de
+### Ejercicio 0
+
+#### Enunciado: Usa la función seq de R para fabricar un vector v con los múltiplos de 3
+#### del 0 al 300. Muestra los primeros 20 elementos de v usando head y calcula:
+#### • la suma del vector v,
+#### • su media,
+#### • y su longitud.
+#### __________________________________________________________________________________
+### Respuesta
+
+```{r cars}
+v = seq(from = 0, to = 300, by = 3)
+head(v, 20)
+
+```
+
+#### Suma del vector
+
+```{r}
+sum(v)
+```
+
+#### Media del vector
+
+```{r}
+mean(v)
+```
+
+#### Longitud del vector
+
+```{r}
+length(v)
+```
+
+### Ejercicio 1
+
+#### Enunciado: Usa la función sample para crear 100 números del 1 al 6. Haz la tabla de
+#### frecuencias absolutas y relativas
+#### __________________________________________________________________________________
+### Respuesta
+```{r}
+set.seed(2020)
+dado_honesto <- sample(1:6, 100, replace=TRUE)
+dado_honesto
+```
+
+#### Usando R
+
+##### Frecuencias absolutas
+```{r}
+table(dado_honesto)
+
+
+```
+
+##### Frecuencias relativas
+```{r}
+prop.table(table(dado_honesto))
+
+```
+
+### Utilizando dplyr:
+
+```{r}
+library(tidyverse)
+
+tabla = data.frame(dado_honesto)
+tabla_e1 = data.frame(dado_honesto)
+tabla_e1 %>%
+ count(dado_honesto)
+```
+
+
+```{r}
+tabla_e1 %>%
+ count(dado_honesto) %>%
+ mutate(dado_honesto, relFreq = prop.table(n))
+
+```
+
+
+
+#### A continuación crea un nuevo vector dado_cargado de manera que la probabilidad de
+#### que el número elegido valga 6 sea el doble que la probabilidad de elegir cualquiera de
+####los cinco números restantes. Lee la ayuda de sample si lo necesitas. De nuevo, haz
+#### tablas de frecuencias absolutas y relativas de este segundo vector.
+#### __________________________________________________________________________________
+### Respuesta
+
+
+```{r}
+set.seed(2020)
+dado_cargado <- sample(1:6, 100, replace = TRUE, prob = rep(c(6/7,12/7)
+, times = c(5,1)))
+dado_cargado
+
+table(dado_cargado)
+prop.table(table(dado_cargado))
+
+
+```
+
+#### Utilizando dplyr:
+
+##### Frecuencia absoluta:
+
+```{r}
+tablaCargada = data.frame(dado_cargado)
+tablaCargada %>% 
+ count(dado_cargado)
+
+```
+
+##### Frecuencia relativa:
+
+```{r}
+tablaCargada %>% 
+ count(dado_cargado) %>% 
+ mutate(dado_cargado, relFreq = prop.table(n))
+
+```
+
+
+#### Utiliza las funciones rep y seq para crear tres vectores v1, v2 y v3 con estos
+#### elementos respectivamente:
+#### 4, 4, 4, 4, 3, 3, 3, 3, 2, 2, 2, 2, 1, 1, 1, 1
+#### 1, 2, 2, 3, 3, 3, 4, 4, 4, 4, 5, 5, 5, 5, 5
+#### 1, 2, 3, 4, 1, 2, 3, 4, 1, 2, 3, 4, 1, 2, 3, 4
+#### __________________________________________________________________________________
+### Respuesta
+
+```{r}
+v1 <- rep(seq(4,1), each = 4)
+v2 <- rep(seq(1,5), times = 1:5)
+v3 <- rep(seq(4,1), times = 4)
+v1
+v2
+v3
+```
+
+#### Utilizando la tabla mpg de la librería tidyverse crea una tabla mpg2 que:
+#### - contenga las filas en las que la variable class toma el valor pickup.
+#### - y las columnas de la tabla original cuyos nombres empiezan por c. No se trata de que las
+#### selecciones a mano, por sus nombres. Busca información sobre funciones auxiliares para
+#### select en la Sección 5.4 de R4DS.
+#### __________________________________________________________________________________
+### Respuesta
+
+
+
+```{r}
+mpg2= mpg
+mpg2 %>%
+ filter(class == 'pickup') %>%
+ select(starts_with('c'))
+
+```
+
+
+#### Descarga el fichero census.dta. Averigua de qué tipo de fichero se trata y usa la
+#### herramienta Import DataSet del panel Environment de RStudio para leer con R los
+#### datos de ese fichero. Asegúrate de copiar en esta práctica los dos primeros comandos
+#### que llevan a cabo la importación (excluye el comando View) y que descubrirás al usar
+#### esa herramienta. Después completa los siguientes apartados con esos datos y usando
+#### dplyr y ggplot:
+
+
+#### I ¿Cuáles son las poblaciones totales de las regiones censales?
+#### I Representa esas poblaciones totales en un diagrama de barras (una barra por región
+#### censal).
+#### I Ordena los estados por población, de mayor a menor.
+#### I Crea una nueva variable que contenga la tasa de divorcios /matrimonios para cada
+#### estado.
+#### I Si nos preguntamos cuáles son los estados más envejecidos podemos responder de dos
+#### maneras. Mirando la edad mediana o mirando en qué estados la franja de mayor edad
+#### representa una proporción más alta de la población total. Haz una tabla en la que
+#### aparezcan los valores de estos dos criterios, ordenada según la edad mediana decreciente
+#### y muestra los 10 primeros estados de esa tabla.
+#### I Haz un histograma (con 10 intervalos) de los valores de la variable medage (edad
+#### mediana) y con la curva de densidad de la variable superpuesta.
+
+intentando solucionar un problema para leer .dta
