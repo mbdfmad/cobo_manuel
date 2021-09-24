@@ -1,0 +1,309 @@
+---
+title: "Práctica 2"
+subtitle: "Fundamentos Matemáticos del Análisis de Datos "
+author: "Manuel Alejandro Cobo Cervantes"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+
+```{r}
+library(tidyverse)
+```
+
+
+
+## EJERCICIO 1
+
+### APARTADO I 
+
+#### Creamos la Variable X1 definida por los siguientes vectores
+
+```{r}
+
+valores = c(0,1,2,3)
+
+prob = c(64/125, 48/125, 12/125, 1/125)
+
+
+```
+
+#### El resultado de la media es: 
+
+```{r}
+
+media = valores %*% prob
+media
+
+```
+
+
+
+#### La varianza teórica se puede calcular con la siguente formula: 
+
+
+```{r}
+avg = media[1,1]
+
+sum((valores-avg)^2*prob)
+
+```
+
+
+
+#### APARTADO 2 
+
+
+```{r}
+valores = c(0,1,2,3)
+
+prob = c(64/125, 48/125, 12/125, 1/125)
+
+```
+
+
+#### Creamos en conjunto de  de 100.000 muestras
+
+```{r}
+
+
+
+muestras = replicate (100000, {
+  muestra = sample(c(0,1,2,3), 10, replace = TRUE, c(64,48,12,1))
+  mean(muestra)
+})
+
+```
+#### histograma de la muestra
+
+```{r}
+
+hist(muestras)
+  
+
+
+```
+
+
+```{r}
+ggplot() + 
+  geom_histogram(aes(x = muestras), bins = 15, fill="green", color="blue") + 
+  geom_vline(xintercept = mean(muestras), 
+             col="blue", linetype="dashed", size=1)
+```
+
+#### Creamos en conjunto con el tamaño de la muestra cambiado a 30 (antes 10)
+
+```{r}
+
+
+
+muestras2 = replicate (100000, {
+  muestra2 = sample(c(0,1,2,3), 30, replace = TRUE, c(64,48,12,1))
+  mean(muestra2)
+
+})
+
+
+```
+#### histograma de la muestra
+
+```{r}
+
+hist(muestras2)
+  
+```
+
+
+
+
+```{r}
+ggplot() + 
+  geom_histogram(aes(x = muestras2), bins = 15, fill="blue", color="grey") + 
+  geom_vline(xintercept = mean(muestras2), 
+             col="pink", linetype="dashed", size=1)
+```
+
+
+
+
+
+
+
+
+
+### APARTADO 3
+
+#### la dos variables se definen por los siguientes vectores
+
+
+```{r}
+
+valores = c(0,1,2,3)
+
+prob = c(64/125, 48/125, 12/125, 1/125)
+
+
+
+
+valores2 = c(0,1,2)
+
+prob2 = c(1/2, 1/4, 1/4)
+
+```
+
+#### sabiendo que X1 y X2 son independientes, los valores que puede tomar estan entre 0 y 5
+
+
+
+
+
+
+X1 = rep(0:3, 3)
+X2 = rep(0:2, each = 4)
+valores = X1 + X2
+prob = c(64/125,48/125,12/125,1/125)*rep(c(1/2,1/4,1/4), each = 4)
+
+tabla = data.frame(valores, X1, X2, prob)
+tabla1 = table %>% 
+  group_by(valores) %>% 
+  summarise(prob = sum(prob))
+
+
+```
+
+
+#### La media se calcula como las suma de las medias de ambas variables : 
+
+
+```{r}
+valor = c(0,1,2,3)
+
+prob = c(64/125, 48/125, 12/125, 1/125)
+
+
+
+
+valor2 = c(0,1,2)
+
+prob2 = c(1/2, 1/4, 1/4)
+```
+
+
+
+```{r}
+
+mediaSuma = valor%*%prob + valor2%*%prob2
+mediaSuma[1,1]
+```
+
+
+### APARTADO 4
+
+
+
+```{r}
+set.seed(2021)
+k = 100000
+Pr1 = c(64/125, 48/125, 12/125, 1/125)
+Pr2 = c(1/2, 1/4, 1/4)
+X1 = c(0:3)
+X2 = c(0:2)
+
+medias_suma_X12 = replicate(k, {
+  muestra = sample(X1, size = 1, replace = TRUE, prob = Pr1) + sample(X2, size = 1, replace = TRUE, prob = Pr2)
+  mean(muestra)
+})
+
+mean(medias_suma_X12)
+
+```
+
+
+
+
+
+## Ejercicio 3
+
+#### Hay tres criterios que hacen que un conjunto sea ordenado:
+
+#### 1 Cada variable debe tener su propia columna
+
+#### 2 Cada observaciÃ³n debe tener su propia fila 
+
+#### 3 Cada valor debe tener su propia celda
+
+#### en el set de datos se aprecia claramente que hay columnas que mezclan variables como genero y edad, por lo que vamos a tratar el formato de la tabla
+#### para cumplir con los tres prinicipios descritos 
+
+
+```{r}
+library(tidyverse)
+```
+
+
+```{r}
+getwd()
+
+datos2 = read_csv('testResults.txt')
+View(datos2)
+```
+
+
+
+```{r}
+
+datosLimpios <- datos2 %>% 
+                separate(gender_age, into = c("gender", "age"), sep = "_", convert = TRUE) %>% 
+                pivot_longer(c("week1", "week2", "week3", "week4", "week5"), names_to = "week_number", 
+                             values_to = "value")
+
+```
+
+
+```{r}
+View(datosLimpios)
+```
+
+## Ejercicio 3
+
+### seccion 7.5.1.1
+
+
+```{r}
+ggplot(diamonds, aes(x = carat, y = price)) +
+  geom_point()
+```
+
+#### analizando la relacion de Carat con el percio via Boxplot
+
+```{r}
+ggplot(data = diamonds, mapping = aes(x = carat, y = price)) +
+  geom_boxplot(mapping = aes(group = cut_width(carat, 0.1)), orientation = "x")
+```
+
+#### se observa una relacion clara con respecto al precio, ahora analizamos el color con respecto al precio
+
+
+```{r}
+diamonds %>%
+  mutate(color = fct_rev(color)) %>%
+  ggplot(aes(x = color, y = price)) +
+  geom_boxplot()
+```
+
+#### en este caso se observa una relacion poco representativa con un alto nivel de valores atipicos, a continuacion, analizamos la claridad
+
+
+```{r}
+ggplot(data = diamonds) +
+  geom_boxplot(mapping = aes(x = clarity, y = price))
+  
+```
+
+
+#### de nuevo, la claridad no muestra un patron claro respecto al precio, por lo analizado hasta ahora, Carat parece la variable mejor relacionada
+
